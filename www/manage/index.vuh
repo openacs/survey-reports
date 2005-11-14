@@ -1,0 +1,45 @@
+# packages/survey/www/admin/reports/manage/index.vuh
+#
+# manage survey reports
+# a lot of these were taken from xcms and bcms so credits go out alsto
+# to DaveB and Jun Yamog
+#
+# @author Deds Castillo (deds@i-manila.com.ph)
+# @creation-date 2004-10-21
+# @arch-tag: ba5fb6a6-a8b8-4fe3-bdc2-4a9862e50f9f
+# @cvs-id $Id$
+
+set the_url "[ad_conn path_info]"
+if {$the_url eq ""} {
+    set the_url "/"
+}
+permission::require_permission \
+    -object_id [ad_conn package_id] \
+    -party_id [ad_conn user_id] \
+    -privilege admin
+
+
+set report_folder_id [survey::report::get_root_folder -package_id [ad_conn package_id]]
+
+set item_id [content::item::get_id \
+                 -root_folder_id $report_folder_id \
+                 -item_path $the_url ]
+
+content::item::get -item_id $item_id -revision latest -array_name item
+
+if {[array size item] == 0} {
+	ns_returnnotfound
+}
+
+rp_form_put item [array get item]
+
+switch -- $item(content_type) {
+	content_folder {
+		rp_internal_redirect "folder-view"
+	}
+    
+	default { # content_template
+		rp_internal_redirect "template-view"
+	}
+
+}

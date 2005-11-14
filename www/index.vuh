@@ -1,0 +1,38 @@
+# packages/survey/www/reports/index.vuh
+#
+# reports redirector
+#
+# @author Deds Castillo (deds@i-manila.com.ph)
+# @creation-date 2004-10-21
+# @arch-tag: c8d895f1-6c2d-4766-9b38-4b9a71b9edd9
+# @cvs-id $Id$
+
+ad_page_contract {
+} {
+
+}
+#     {rtf "f"}
+set user_id [auth::require_login]
+
+set survey_id [ad_conn path_info]
+set package_id [ad_conn package_id]
+
+permission::require_permission \
+    -object_id $package_id \
+    -party_id $user_id \
+    -privilege read
+
+set template_id [survey::report::get_template -survey_id $survey_id]
+
+if {!$template_id} {
+    ad_returnredirect [export_vars -base "../admin/reports/manage/survey" {survey_id}]
+}
+
+set report_folder_id [survey::report::init_root_folder]
+
+content::item::get -item_id $template_id -revision live -array_name item
+
+rp_form_put template_item [array get item]
+rp_form_put survey_id $survey_id
+
+rp_internal_redirect view
