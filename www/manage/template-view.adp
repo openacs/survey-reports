@@ -12,7 +12,7 @@
 <ul>
 <li><a href="views?object_id=@item_id@">View all users who viewed this report</a>
 <li><a href="#revisions">See list of all revisions</a><br />
-<if @no_surveys_associated_p@ nil>
+<if @no_surveys_associated_p@ eq 0>
 <li><a href="available-vars?name=@content.name@" target="_new">View available page variables</a> (opens in a new window)<br />
 </if>
 <li>Link to this report: @link_to_this_url;noquote@<br />
@@ -23,4 +23,4 @@
 <p />
 Revision List:<br />
 <a name="revisions"></a>
-<include src="/packages/survey-reports/lib/revision-list" item_id="@template_revision.item_id@" publish_url="@publish_url@" version="@template_revision.version_number@">
+<include src="/packages/survey-reports/lib/revision-list" item_id="@template_revision.item_id@" current_revision_id="@revision_id@" version="@template_revision.version_number@">
