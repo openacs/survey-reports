@@ -7,7 +7,7 @@
 # @arch-tag: f9bc2802-3c4a-4289-a692-9aba860c67a4
 # @cvs-id $Id$
 
-foreach required_param {item_id} {
+foreach required_param {item_id current_revision_id} {
     if {![info exists $required_param]} {
         return -code error "$required_param is a required parameter."
     }
@@ -15,21 +15,13 @@ foreach required_param {item_id} {
 
 set package_url [ad_conn package_url]
 
-set current_url "${package_url}admin/reports/manage/[ad_conn path_info]"
-set target_url $current_url
-set preview_url "${package_url}admin/reports/manage/template-preview"
-if {![exists_and_not_null publish_url]} {
-    set publish_url "${package_url}admin/reports/manage/template-write"
-}
-if {![exists_and_not_null unpublish_url]} {
-    set unpublish_url "${package_url}admin/reports/manage/template-unpublish"
-}
+set current_url "${package_url}manage/[ad_conn path_info]"
 
 template::list::create \
     -name revision_list \
     -multirow revision_list \
     -key revision_id \
-    -pass_properties {publish_url unpublish_url version} \
+    -pass_properties {version} \
     -elements {
         creation_date {label "Date Created"}
         last_name {
@@ -42,13 +34,18 @@ template::list::create \
         }
         revision_id {
             label "Version Actions"
-            display_template {<a href="${preview_url}?revision_id=@revision_list.revision_id@&return_url=${current_url}">Preview</a> | <a href="${target_url}?revision_id=@revision_list.revision_id@">Manage</a> | <if @revision_list.live_revision_id@ eq @revision_list.revision_id@><b><a href="$unpublish_url?revision_id=@revision_list.revision_id@&return_url=${current_url}?revision_id=@revision_list.revision_id@">Unpublish</a></b></if><else><a href="$publish_url?revision_id=@revision_list.revision_id@&return_url=${current_url}?revision_id=@revision_list.revision_id@">Publish</a></else>}
+            display_template {<a href="@revision_list.preview_url@">Preview</a> | <a href="@revision_list.manage_url@">Manage</a> | <if @revision_list.live_revision_id@ eq @revision_list.revision_id@><b><a href="@revision_list.unpublish_url@">Unpublish</a></b></if><else><a href="@revision_list.publish_url@">Publish</a></else>}
         }
         
     }
 
-db_multirow revision_list get_revisions "select ci.live_revision as live_revision_id, cr.*, content_revision__get_number(cr.revision_id) as version_number, u.first_names, u.last_name from cr_revisionsx cr, cr_items ci, acs_users_all u where cr.item_id=ci.item_id and cr.item_id=:item_id and cr.creation_user=u.user_id" {
+set return_url [export_vars -base "$current_url" {{revision_id $current_revision_id}}]
+db_multirow -extend { publish_url unpublish_url preview_url manage_url } revision_list get_revisions "select ci.live_revision as live_revision_id, cr.*, content_revision__get_number(cr.revision_id) as version_number, u.first_names, u.last_name from cr_revisionsx cr, cr_items ci, acs_users_all u where cr.item_id=ci.item_id and cr.item_id=:item_id and cr.creation_user=u.user_id order by version_number desc" {
     set creation_date [lc_time_fmt $creation_date "%c"]
+    set manage_url [export_vars -base "$current_url" {revision_id}]
+    set preview_url [export_vars -base "${package_url}manage/template-preview" {revision_id return_url}]
+    set publish_url [export_vars -base "${package_url}manage/template-write" {revision_id return_url}]
+    set unpublish_url [export_vars -base "${package_url}manage/template-unpublish" {revision_id return_url}]
 }
 
 
