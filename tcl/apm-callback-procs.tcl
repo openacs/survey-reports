@@ -25,10 +25,15 @@ ad_proc -private survey_reports::install::after_instantiate {
     
     @error 
 } {
-    content::folder::new \
-        -name "survey_reports_${package_id}_root_folder" \
-        -parent_id "-200" \
-        -package_id $package_id
+    set folder_id [content::folder::new \
+                       -name "survey_reports_${package_id}_root_folder" \
+                       -parent_id "-200" \
+                       -package_id $package_id
+                  ]
+
+    content::folder::register_content_type \
+        -folder_id $folder_id \
+        -content_type "content_revision"
 }
 
 ad_proc -private survey_reports::install::before_uninstantiate {
