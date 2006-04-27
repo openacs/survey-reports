@@ -22,7 +22,7 @@ if {![exists_and_not_null return_url]} {
     set return_url [export_vars -base "template-select" {survey_id}]
 }
 
-set current_template_id $item(item_id)
+set current_template_id [survey::report::get_template -survey_id $survey_id]
 
 set folder_id [survey::report::get_root_folder]
 
