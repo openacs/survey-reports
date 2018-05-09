@@ -196,7 +196,7 @@ upvar #[template::adp_level] __adp_properties properties
 set properties(survey_id) $survey_id
 if {[string equal "t" $rtf]} {
     set master "/home/prodcomp/openacs/packages/survey/lib/print-report-master"
-    set vars {}
+    set vars [list]
     foreach var $var_names {
 	lappend vars $var [set $var]
     }

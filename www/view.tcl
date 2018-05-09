@@ -43,9 +43,9 @@ set url $user(url)
 set screen_name $user(screen_name)
 set current_date [ns_fmttime [ns_time] "%B %e, %Y"]
 
-set var_names {}
+set var_names [list]
 
-set used_list {}
+set used_list [list]
 set orig_survey_id $survey_id
 
 db_multirow surveys_used surveys_used {
@@ -411,7 +411,7 @@ set properties(survey_id) $orig_survey_id
 set properties(manage_url) "[ad_conn package_url]manage/${item(name)}"
 set properties(admin_p) [permission::permission_p -object_id $package_id -privilege admin]
 
-set vars {}
+set vars [list]
 foreach var $var_names {
     lappend vars $var [set $var]
 }
