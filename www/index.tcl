@@ -88,7 +88,7 @@ ossible answers.
          #I'm being lazy here and not getting the responses at the same time I get all the questions.
          #For now I'm not expecting a preformance issue but this may need to be rewritten at some time.
          #If you ever do rewrite it remember to set unanswered questions to empty string.
-set full_id [fs::remove_special_file_system_characters -string "${section_pretty_id}_${question_pretty_id}"]
+set file_upload_name [ad_sanitize_filename -tolower "${section_pretty_id}_${question_pretty_id}"]
 
 lappend var_names full_name
 lappend var_names $full_id
@@ -176,8 +176,9 @@ r
     set $full_id $answer
 
 if { [lsearch $question_pretty_id $duplicate_pretty_ids] == -1 } {
-    set short_id [fs::remove_special_file_system_characters -string "$question_pretty_id"]
-        set $short_id $answer
+    set short_id [ad_sanitize_filename -tolower $question_pretty_id]
+
+    set $short_id $answer
     lappend var_names $short_id
 }
 }
